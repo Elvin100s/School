@@ -15,6 +15,7 @@ source core/monitor.sh
 source core/scan.sh
 source core/clients.sh
 source core/deauth.sh
+source core/nmap.sh
 source utils/ui.sh
 
 check_root
@@ -74,13 +75,20 @@ while true; do
     echo
     echo -e "  ${CYAN}1)${NC} Quick Wizard"
     echo -e "  ${CYAN}2)${NC} Manual Mode"
-    echo -e "  ${YELLOW}3)${NC} Exit"
+    echo
+    echo -e "${DIM}-- Network Recon --${NC}"
+    echo -e "  ${CYAN}3)${NC} Host Discovery (nmap)"
+    echo -e "  ${CYAN}4)${NC} Port Scan Host (nmap)"
+    echo
+    echo -e "  ${YELLOW}5)${NC} Exit"
     echo
     read -p "Choice: " choice
     case $choice in
         1) quick_wizard ;;
         2) manual_menu ;;
-        3) exit 0 ;;
+        3) host_discovery ;;
+        4) port_scan ;;
+        5) exit 0 ;;
         *) echo -e "${RED}Invalid choice${NC}" ; sleep 1 ;;
     esac
 done

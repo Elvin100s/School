@@ -90,29 +90,41 @@ echo -e "${DIM}Monitor   :${NC} ${mon_iface:+${GREEN}${mon_iface}${NC}}${mon_ifa
 echo -e "${DIM}Target    :${NC} ${bssid:+${GREEN}${bssid}${NC}}${bssid:-${YELLOW}Not set${NC}}"
 echo -e "${DIM}Channel   :${NC} ${channel:+${GREEN}${channel}${NC}}${channel:-${YELLOW}Not set${NC}}"
 echo
+echo -e "${DIM}-- Setup --${NC}"
 echo -e "  ${CYAN}1)${NC} Select Interface"
 echo -e "  ${CYAN}2)${NC} Enable Monitor Mode"
-echo -e "  ${CYAN}3)${NC} Scan Networks"
-echo -e "  ${CYAN}4)${NC} Select Target"
-echo -e "  ${CYAN}5)${NC} Scan Clients"
-echo -e "  ${RED}6)${NC} Deauth ALL"
-echo -e "  ${RED}7)${NC} Deauth One Client"
-echo -e "  ${CYAN}8)${NC} Stop Monitor Mode"
-echo -e "  ${YELLOW}9)${NC} Back"
+echo -e "  ${CYAN}3)${NC} Stop Monitor Mode"
+echo
+echo -e "${DIM}-- Wireless Recon --${NC}"
+echo -e "  ${CYAN}4)${NC} Scan Networks"
+echo -e "  ${CYAN}5)${NC} Select Target"
+echo -e "  ${CYAN}6)${NC} Scan Clients"
+echo
+echo -e "${DIM}-- Network Recon --${NC}"
+echo -e "  ${CYAN}7)${NC} Host Discovery (nmap)"
+echo -e "  ${CYAN}8)${NC} Port Scan Host (nmap)"
+echo
+echo -e "${DIM}-- Attack --${NC}"
+echo -e "  ${RED}9)${NC}  Deauth ALL"
+echo -e "  ${RED}10)${NC} Deauth One Client"
+echo
+echo -e "  ${YELLOW}11)${NC} Back"
 echo
 
 read -p "Choice: " c
 
 case $c in
-1) select_interface ;;
-2) enable_monitor ;;
-3) scan_networks ;;
-4) select_target ;;
-5) scan_clients ;;
-6) deauth_all ;;
-7) deauth_one ;;
-8) stop_monitor ;;
-9) break ;;
+1)  select_interface ;;
+2)  enable_monitor ;;
+3)  stop_monitor ;;
+4)  scan_networks ;;
+5)  select_target ;;
+6)  scan_clients ;;
+7)  host_discovery ;;
+8)  port_scan ;;
+9)  deauth_all ;;
+10) deauth_one ;;
+11) break ;;
 esac
 
 done
