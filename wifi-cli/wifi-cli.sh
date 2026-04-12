@@ -60,35 +60,26 @@ show_current_conn() {
 
 while true; do
     clear
-    echo -e "${BOLD_CYAN}========== WiFi CLI Framework ==========${NC}"
+    echo -e "$BANNER"
+    draw_status_box
     echo
-    echo -e "${DIM}Interface :${NC} ${iface:+${GREEN}${iface}${NC}}${iface:-${YELLOW}Not set${NC}}"
 
-    # Show current Wi-Fi connection only if interface is selected & in managed mode
-    if [[ -n "$iface" && -z "$mon_iface" ]]; then
-        show_current_conn "$iface"
-    fi
-
-    echo -e "${DIM}Monitor   :${NC} ${mon_iface:+${GREEN}${mon_iface}${NC}}${mon_iface:-${YELLOW}Not set${NC}}"
-    echo -e "${DIM}Target    :${NC} ${bssid:+${GREEN}${bssid}${NC}}${bssid:-${YELLOW}Not set${NC}}"
-    echo -e "${DIM}Channel   :${NC} ${channel:+${GREEN}${channel}${NC}}${channel:-${YELLOW}Not set${NC}}"
+    echo -e "  ${BOLD_CYAN}[1]${NC} Quick Wizard"
+    echo -e "  ${BOLD_CYAN}[2]${NC} Manual Mode"
     echo
-    echo -e "  ${CYAN}1)${NC} Quick Wizard"
-    echo -e "  ${CYAN}2)${NC} Manual Mode"
+    section "Network Recon"
+    echo -e "  ${BOLD_CYAN}[3]${NC} Host Discovery ${DIM}(nmap)${NC}"
+    echo -e "  ${BOLD_CYAN}[4]${NC} Port Scan Host ${DIM}(nmap)${NC}"
     echo
-    echo -e "${DIM}-- Network Recon --${NC}"
-    echo -e "  ${CYAN}3)${NC} Host Discovery (nmap)"
-    echo -e "  ${CYAN}4)${NC} Port Scan Host (nmap)"
+    echo -e "  ${BOLD_YELLOW}[5]${NC} Exit"
     echo
-    echo -e "  ${YELLOW}5)${NC} Exit"
-    echo
-    read -p "Choice: " choice
+    read -p "  Choice: " choice
     case $choice in
         1) quick_wizard ;;
         2) manual_menu ;;
         3) host_discovery ;;
         4) port_scan ;;
         5) exit 0 ;;
-        *) echo -e "${RED}Invalid choice${NC}" ; sleep 1 ;;
+        *) echo -e "  ${BOLD_RED}[!] Invalid choice${NC}" ; sleep 1 ;;
     esac
 done

@@ -83,32 +83,28 @@ manual_menu() {
 while true; do
 
 clear
-echo -e "${BOLD_CYAN}========== Manual Mode ==========${NC}"
+echo -e "$BANNER"
+draw_status_box
 echo
-echo -e "${DIM}Interface :${NC} ${iface:+${GREEN}${iface}${NC}}${iface:-${YELLOW}Not set${NC}}"
-echo -e "${DIM}Monitor   :${NC} ${mon_iface:+${GREEN}${mon_iface}${NC}}${mon_iface:-${YELLOW}Not set${NC}}"
-echo -e "${DIM}Target    :${NC} ${bssid:+${GREEN}${bssid}${NC}}${bssid:-${YELLOW}Not set${NC}}"
-echo -e "${DIM}Channel   :${NC} ${channel:+${GREEN}${channel}${NC}}${channel:-${YELLOW}Not set${NC}}"
+section "Setup"
+echo -e "  ${BOLD_CYAN}[1]${NC} Select Interface"
+echo -e "  ${BOLD_CYAN}[2]${NC} Enable Monitor Mode"
+echo -e "  ${BOLD_CYAN}[3]${NC} Stop Monitor Mode"
 echo
-echo -e "${DIM}-- Setup --${NC}"
-echo -e "  ${CYAN}1)${NC} Select Interface"
-echo -e "  ${CYAN}2)${NC} Enable Monitor Mode"
-echo -e "  ${CYAN}3)${NC} Stop Monitor Mode"
+section "Wireless Recon"
+echo -e "  ${BOLD_CYAN}[4]${NC} Scan Networks"
+echo -e "  ${BOLD_CYAN}[5]${NC} Select Target"
+echo -e "  ${BOLD_CYAN}[6]${NC} Scan Clients"
 echo
-echo -e "${DIM}-- Wireless Recon --${NC}"
-echo -e "  ${CYAN}4)${NC} Scan Networks"
-echo -e "  ${CYAN}5)${NC} Select Target"
-echo -e "  ${CYAN}6)${NC} Scan Clients"
+section "Network Recon"
+echo -e "  ${BOLD_CYAN}[7]${NC} Host Discovery ${DIM}(nmap)${NC}"
+echo -e "  ${BOLD_CYAN}[8]${NC} Port Scan Host ${DIM}(nmap)${NC}"
 echo
-echo -e "${DIM}-- Network Recon --${NC}"
-echo -e "  ${CYAN}7)${NC} Host Discovery (nmap)"
-echo -e "  ${CYAN}8)${NC} Port Scan Host (nmap)"
+section "${BOLD_RED}Attack${NC}"
+echo -e "  ${BOLD_RED}[9]${NC}  Deauth ALL"
+echo -e "  ${BOLD_RED}[10]${NC} Deauth One Client"
 echo
-echo -e "${DIM}-- Attack --${NC}"
-echo -e "  ${RED}9)${NC}  Deauth ALL"
-echo -e "  ${RED}10)${NC} Deauth One Client"
-echo
-echo -e "  ${YELLOW}11)${NC} Back"
+echo -e "  ${BOLD_YELLOW}[11]${NC} Back"
 echo
 
 read -p "Choice: " c

@@ -22,15 +22,17 @@ return
 fi
 
 clear
-echo "[+] Scanning networks (10 seconds)..."
+echo -e "${BOLD_CYAN}[+]${NC} Starting network scan on ${BOLD_GREEN}${mon_iface}${NC}..."
 echo
 
 rm -f networks-01.csv 2>/dev/null
 
-airodump-ng "$mon_iface" -w networks --output-format csv &
+airodump-ng "$mon_iface" -w networks --output-format csv &>/dev/null &
 scan_pid=$!
 
-sleep 10
+sleep 10 &
+spinner $! "Scanning for networks (10s)"
+
 kill $scan_pid 2>/dev/null
 wait $scan_pid 2>/dev/null
 scan_pid=""

@@ -15,15 +15,17 @@ return
 fi
 
 clear
-echo "[+] Scanning clients on $bssid (channel $channel)..."
+echo -e "${BOLD_CYAN}[+]${NC} Scanning clients on ${BOLD_GREEN}${bssid}${NC} (channel ${BOLD_GREEN}${channel}${NC})..."
 echo
 
 rm -f scan-01.csv 2>/dev/null
 
-airodump-ng -c "$channel" --bssid "$bssid" -w scan "$mon_iface" &
+airodump-ng -c "$channel" --bssid "$bssid" -w scan "$mon_iface" &>/dev/null &
 scan_pid=$!
 
-sleep 8
+sleep 8 &
+spinner $! "Listening for clients (8s)"
+
 kill $scan_pid 2>/dev/null
 wait $scan_pid 2>/dev/null
 scan_pid=""
