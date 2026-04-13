@@ -10,7 +10,7 @@ _get_subnet() {
 # Discover live hosts on the interface's subnet
 host_discovery() {
     if [[ -z "$iface" ]]; then
-        echo "Select an interface first!"
+        echo -e "${BOLD_RED}[!]${NC} Select an interface first!"
         pause
         return
     fi
@@ -19,13 +19,13 @@ host_discovery() {
     subnet=$(_get_subnet)
 
     if [[ -z "$subnet" ]]; then
-        echo "Could not determine subnet for $iface."
+        echo -e "${BOLD_RED}[!]${NC} Could not determine subnet for ${BOLD_GREEN}${iface}${NC}."
         pause
         return
     fi
 
     clear
-    echo "[+] Running host discovery on $subnet ..."
+    echo -e "${BOLD_CYAN}[+]${NC} Running host discovery on ${BOLD_GREEN}${subnet}${NC}..."
     echo
 
     # -sn = ping scan (no port scan), -T4 = faster timing
@@ -33,12 +33,12 @@ host_discovery() {
         | awk '/Nmap scan report/{ip=$NF} /MAC Address/{mac=$3; print ip, mac}')
 
     if [[ -z "$nmap_hosts" ]]; then
-        echo "No hosts found. Make sure $iface has an IP on this subnet."
+        echo -e "${BOLD_YELLOW}[!]${NC} No hosts found. Make sure ${BOLD_GREEN}${iface}${NC} has an IP on this subnet."
         pause
         return
     fi
 
-    echo "Live Hosts:"
+    echo -e "${BOLD_CYAN}Live Hosts:${NC}"
     echo
     echo "$nmap_hosts" | nl -w2 -s') '
     pause
@@ -47,7 +47,7 @@ host_discovery() {
 # Port scan a host selected from the discovery list
 port_scan() {
     if [[ -z "$iface" ]]; then
-        echo "Select an interface first!"
+        echo -e "${BOLD_RED}[!]${NC} Select an interface first!"
         pause
         return
     fi
@@ -56,7 +56,7 @@ port_scan() {
     subnet=$(_get_subnet)
 
     if [[ -z "$subnet" ]]; then
-        echo "Could not determine subnet for $iface."
+        echo -e "${BOLD_RED}[!]${NC} Could not determine subnet for ${BOLD_GREEN}${iface}${NC}."
         pause
         return
     fi
@@ -67,29 +67,29 @@ port_scan() {
         | awk '/Nmap scan report/{ip=$NF} /MAC Address/{mac=$3; print ip, mac}')
 
     if [[ -z "$hosts" ]]; then
-        echo "No hosts found. Run host discovery first."
+        echo -e "${BOLD_YELLOW}[!]${NC} No hosts found. Run host discovery first."
         pause
         return
     fi
 
     clear
-    echo "Select host to port scan:"
+    echo -e "${BOLD_CYAN}Select host to port scan:${NC}"
     echo
     echo "$hosts" | nl -w2 -s') '
     echo
-    read -p "Host number: " num
+    read -p "  Host number: " num
 
     local target_ip
     target_ip=$(echo "$hosts" | sed -n "${num}p" | awk '{print $1}')
 
     if [[ -z "$target_ip" ]]; then
-        echo "Invalid selection."
+        echo -e "${BOLD_RED}[!]${NC} Invalid selection."
         pause
         return
     fi
 
     clear
-    echo "[+] Port scanning $target_ip ..."
+    echo -e "${BOLD_CYAN}[+]${NC} Port scanning ${BOLD_GREEN}${target_ip}${NC}..."
     echo
 
     # -sV = service/version detection, -T4 = fast, --open = show only open ports
