@@ -39,6 +39,17 @@ _display_clients_grouped() {
     done <<< "$data"
 }
 
+probe_analysis() {
+    if [[ ! -f scan-01.csv ]]; then
+        echo -e "${BOLD_RED}[!]${NC} No client scan data found."
+        echo -e "    ${DIM}Run option [3] Scan Clients first to generate a capture file.${NC}"
+        pause
+        return
+    fi
+    bash "$(dirname "${BASH_SOURCE[0]}")/probe.sh" scan-01.csv
+    pause
+}
+
 scan_clients() {
 
 if [[ -z "$mon_iface" || -z "$channel" ]]; then

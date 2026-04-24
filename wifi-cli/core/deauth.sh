@@ -278,6 +278,7 @@ section "Wireless Recon"
 echo -e "  ${BOLD_CYAN}[1]${NC} Scan Networks"
 echo -e "  ${BOLD_CYAN}[2]${NC} Select Target"
 echo -e "  ${BOLD_CYAN}[3]${NC} Scan Clients"
+echo -e "  ${BOLD_CYAN}[8]${NC} Probe Analysis ${DIM}(requires prior client scan)${NC}"
 echo
 section "Network Recon"
 echo -e "  ${BOLD_CYAN}[4]${NC} Host Discovery ${DIM}(nmap)${NC}"
@@ -287,7 +288,7 @@ section "${BOLD_RED}Attack${NC}"
 echo -e "  ${BOLD_RED}[6]${NC} Deauth ALL"
 echo -e "  ${BOLD_RED}[7]${NC} Deauth One Client"
 echo
-echo -e "  ${BOLD_YELLOW}[8]${NC} Back"
+echo -e "  ${BOLD_YELLOW}[9]${NC} Back"
 echo
 
 read -p "  Choice: " c
@@ -300,7 +301,8 @@ case $c in
 5) port_scan ;;
 6) deauth_all ;;
 7) deauth_one ;;
-8) break ;;
+8) probe_analysis ;;
+9) break ;;
 esac
 
 done
