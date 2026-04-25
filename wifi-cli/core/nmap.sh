@@ -217,7 +217,7 @@ web_scan() {
     total_findings=$(grep -c '^\+' "$outfile" 2>/dev/null || echo 0)
     server=$(grep 'Server:' "$outfile" 2>/dev/null | head -1 | sed 's/.*Server: //')
     osvdb_count=$(grep -c 'OSVDB' "$outfile" 2>/dev/null || echo 0)
-    interesting=$(grep -c 'found\|login\|admin\|phpmyadmin\|backup\|config\|password\|\.git\|\.env' "$outfile" 2>/dev/null || echo 0)
+    interesting=$(grep -ci 'found\|login\|admin\|phpmyadmin\|backup\|config\|password\|\.git\|\.env\|\.htpasswd\|\.htaccess\|web\.config\|\.bak\|\.old\|\.swp\|\.zip\|\.tar\|wp-admin\|wp-config\|xmlrpc\|administrator\|manager\|xss\|injection\|traversal\|CVE\|RCE\|overflow\|disclosure\|debug\|trace\|stack trace\|upload\|shell\|cmd\|exec\|sql\|sqlite\|database\|swagger\|graphql\|api\|default\|demo\|index of\|directory listing\|robots\.txt\|disallow' "$outfile" 2>/dev/null || echo 0)
 
     [[ -n "$server"        ]] && echo -e "  ${DIM}Server      :${NC} ${BOLD_GREEN}${server}${NC}"
     echo -e "  ${DIM}Findings    :${NC} ${BOLD_YELLOW}${total_findings}${NC} total"
@@ -229,7 +229,7 @@ web_scan() {
     if (( interesting > 0 )); then
         echo
         echo -e "${BOLD_CYAN}  ── High-Value Findings ─────────────────────────────────${NC}"
-        grep -i 'found\|login\|admin\|phpmyadmin\|backup\|config\|password\|\.git\|\.env' "$outfile" \
+        grep -i 'found\|login\|admin\|phpmyadmin\|backup\|config\|password\|\.git\|\.env\|\.htpasswd\|\.htaccess\|web\.config\|\.bak\|\.old\|\.swp\|\.zip\|\.tar\|wp-admin\|wp-config\|xmlrpc\|administrator\|manager\|xss\|injection\|traversal\|CVE\|RCE\|overflow\|disclosure\|debug\|trace\|stack trace\|upload\|shell\|cmd\|exec\|sql\|sqlite\|database\|swagger\|graphql\|api\|default\|demo\|index of\|directory listing\|robots\.txt\|disallow' "$outfile" \
             | grep '^\+' \
             | sed 's/^+ //' \
             | while IFS= read -r line; do
