@@ -59,7 +59,7 @@ else
         [[ "$_active" == "*" ]] && _ind="${BOLD_GREEN}◉${NC}" || _ind="${DIM}○${NC}"
         if (( _sig+0 >= 70 )); then _sc="$BOLD_GREEN"
         elif (( _sig+0 >= 45 )); then _sc="$BOLD_YELLOW"
-        else _sc="$BOLD_RED"; fi
+        else _sc="$RED"; fi
         _net_lines+=("$(printf "%b %-32s %b%3s%%%b" "$_ind" "$_s" "$_sc" "$_sig" "$NC")")
         _net_ssids+=("$_s")
         _net_actives+=("$_active")

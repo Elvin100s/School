@@ -33,7 +33,7 @@ _display_clients_grouped() {
             echo
             echo -e "  ${BOLD_CYAN}Network: ${BOLD_GREEN}${essid}${NC} ${DIM}(${assoc_bssid})${NC}"
         fi
-        echo -e "    ${BOLD_YELLOW}${counter})${NC} ${mac}"
+        echo -e "    ${BOLD_YELLOW}${counter})${NC} ${BOLD_MAGENTA}${mac}${NC}"
         prev_bssid="$assoc_bssid"
         (( counter++ ))
     done <<< "$data"

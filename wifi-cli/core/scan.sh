@@ -62,7 +62,7 @@ _display_networks() {
             band_color="$BOLD_BLUE"
             band_str="5G"
         else
-            band_color="$BOLD_YELLOW"
+            band_color="$BLUE"
             band_str="2.4G"
         fi
 
@@ -199,7 +199,7 @@ fi
 echo
 echo -e "${BOLD_CYAN}Selected Target:${NC}"
 echo -e "  ${DIM}SSID    :${NC} ${BOLD_GREEN}${essid}${NC}"
-echo -e "  ${DIM}BSSID   :${NC} ${BOLD_GREEN}${bssid}${NC}"
+echo -e "  ${DIM}BSSID   :${NC} ${BOLD_MAGENTA}${bssid}${NC}"
 echo -e "  ${DIM}Channel :${NC} ${BOLD_GREEN}${channel}${NC}"
 
 pause

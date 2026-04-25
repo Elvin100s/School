@@ -29,7 +29,7 @@ host_discovery() {
 
     # -sn = ping scan (no port scan), -T4 = faster timing
     nmap_hosts=$(nmap -sn -T4 "$subnet" 2>/dev/null \
-        | awk '/Nmap scan report/{ip=$NF} /MAC Address/{mac=$3; print ip, mac}')
+        | awk '/Nmap scan report/{ip=$NF; gsub(/[()]/, "", ip)} /MAC Address/{mac=$3; print ip, mac}')
 
     if [[ -z "$nmap_hosts" ]]; then
         echo -e "${BOLD_YELLOW}[!]${NC} No hosts found. Make sure ${BOLD_GREEN}${iface}${NC} has an IP on this subnet."
@@ -39,7 +39,11 @@ host_discovery() {
 
     echo -e "${BOLD_CYAN}Live Hosts:${NC}"
     echo
-    echo "$nmap_hosts" | nl -w2 -s') '
+    local _n=1
+    while IFS=' ' read -r _ip _mac; do
+        printf "  ${BOLD_CYAN}%2d)${NC}  ${GREEN}%-16s${NC}  ${BOLD_MAGENTA}%s${NC}\n" "$_n" "$_ip" "$_mac"
+        (( _n++ )) || true
+    done <<< "$nmap_hosts"
     pause
 }
 
@@ -62,7 +66,7 @@ port_scan() {
     # Refresh host list silently
     local hosts
     hosts=$(nmap -sn -T4 "$subnet" 2>/dev/null \
-        | awk '/Nmap scan report/{ip=$NF} /MAC Address/{mac=$3; print ip, mac}')
+        | awk '/Nmap scan report/{ip=$NF; gsub(/[()]/, "", ip)} /MAC Address/{mac=$3; print ip, mac}')
 
     if [[ -z "$hosts" ]]; then
         echo -e "${BOLD_YELLOW}[!]${NC} No hosts found. Run host discovery first."
@@ -73,7 +77,11 @@ port_scan() {
     clear
     echo -e "${BOLD_CYAN}Select host to port scan:${NC}"
     echo
-    echo "$hosts" | nl -w2 -s') '
+    local _n=1
+    while IFS=' ' read -r _ip _mac; do
+        printf "  ${BOLD_CYAN}%2d)${NC}  ${GREEN}%-16s${NC}  ${BOLD_MAGENTA}%s${NC}\n" "$_n" "$_ip" "$_mac"
+        (( _n++ )) || true
+    done <<< "$hosts"
     echo
     read -p "  Host number: " num
 

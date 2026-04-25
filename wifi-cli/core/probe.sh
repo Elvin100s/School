@@ -232,7 +232,7 @@ display_table() {
             fi
         fi
 
-        printf " ${BOLD_GREEN}%-17s${NC}  ${CYAN}%-24s${NC}  %b\n" \
+        printf " ${BOLD_MAGENTA}%-17s${NC}  ${CYAN}%-24s${NC}  %b\n" \
             "$mac" "$vendor" "$probed_display"
 
     done <<< "$enriched"
