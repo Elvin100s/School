@@ -86,11 +86,12 @@ while true; do
     section "Network Recon"
     echo -e "  ${BOLD_CYAN}[4]${NC} Host Discovery ${DIM}(nmap)${NC}"
     echo -e "  ${BOLD_CYAN}[5]${NC} Port Scan Host ${DIM}(nmap)${NC}"
+    echo -e "  ${BOLD_CYAN}[6]${NC} Web Vulnerability Scan ${DIM}(nikto)${NC}"
     echo
     section "Bandwidth Limiter"
-    echo -e "  ${BOLD_RED}[6]${NC} Bandwidth Limiter ${DIM}(MITM — managed mode)${NC}"
+    echo -e "  ${BOLD_RED}[7]${NC} Bandwidth Limiter ${DIM}(MITM — managed mode)${NC}"
     echo
-    echo -e "  ${BOLD_YELLOW}[7]${NC} Exit"
+    echo -e "  ${BOLD_YELLOW}[8]${NC} Exit"
     echo
     read -p "  Choice: " choice
     case $choice in
@@ -99,8 +100,9 @@ while true; do
         3) evil_twin ;;
         4) host_discovery ;;
         5) port_scan ;;
-        6) throttle_client ;;
-        7) exit 0 ;;
+        6) web_scan ;;
+        7) throttle_client ;;
+        8) exit 0 ;;
         *) echo -e "  ${BOLD_RED}[!] Invalid choice${NC}" ; sleep 1 ;;
     esac
 done

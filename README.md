@@ -32,6 +32,7 @@ A menu-driven bash framework for wireless reconnaissance and network attacks, bu
 | `iw` | `iw` | Interface info |
 | `nmcli` | `network-manager` | Manage connections |
 | `macchanger` | `macchanger` | MAC address spoofing |
+| `nikto` | `nikto` | Web server vulnerability scanning |
 | `arpspoof` | `dsniff` | ARP spoofing for MITM |
 | `tc` | `iproute2` | Traffic shaping |
 | `hostapd` | `hostapd` | Fake AP for evil twin |
@@ -42,7 +43,7 @@ A menu-driven bash framework for wireless reconnaissance and network attacks, bu
 Install all at once:
 
 ```bash
-sudo apt update && sudo apt install aircrack-ng nmap tcpdump tshark net-tools iw network-manager macchanger dsniff iproute2 hostapd dnsmasq python3 iptables -y
+sudo apt update && sudo apt install aircrack-ng nmap nikto tcpdump tshark net-tools iw network-manager macchanger dsniff iproute2 hostapd dnsmasq python3 iptables -y
 ```
 
 ---

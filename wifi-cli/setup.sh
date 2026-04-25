@@ -10,7 +10,7 @@ else
 fi
 
 # Packages needed
-PACKAGES=(aircrack-ng nmap tcpdump net-tools iw network-manager macchanger dsniff iproute2 hostapd dnsmasq python3 iptables)
+PACKAGES=(aircrack-ng nmap nikto tcpdump net-tools iw network-manager macchanger dsniff iproute2 hostapd dnsmasq python3 iptables)
 
 check_deps() {
     echo -e "${BOLD_CYAN}[+] Checking system dependencies...${NC}"
