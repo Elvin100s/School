@@ -1,0 +1,22 @@
+# Private Engineering Logs
+wifi-cli/MEMORY.md
+
+# AI Agent Data
+.claude/
+.gemini/
+
+# WiFi Scan Data & Captures
+*.csv
+*.cap
+*.log
+*.kismet.csv
+*.kismet.netxml
+networks-*
+scan-*
+
+# Python temporary files
+__pycache__/
+*.pyc
+
+# Local Environment
+.env
