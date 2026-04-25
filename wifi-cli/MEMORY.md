@@ -15,5 +15,11 @@
 - **`core/dns.sh`:** Real-time DNS traffic analysis. Uses heuristic patterns to fingerprint devices (Apple, Android, Windows, IoT, etc.) and lists top queried domains.
 - **`core/probe.sh`:** Analyzes unencrypted 802.11 probe requests to identify device manufacturers and their connection histories (previously known SSIDs).
 
-#### 🏗️ Architecture Note
-- The `cleanup()` trap in `wifi-cli.sh` is the "source of truth" for system restoration. Any new background processes must be added to this trap to ensure the user's networking is restored on exit.
+#### 🛡️ Project Branding & Security (DNA-Lock)
+- **Invisible DNA:** Zero-width Unicode signatures injected into documentation for forensic ownership proof.
+- **Stealth AI Protection:** Base64-encoded `SHA256_METADATA_INTEGRITY` headers added to core scripts to prevent AI-assisted theft of credit.
+- **Official Build:** Transitioned to `v1.2.5-ELV-PRIME` branding in the UI.
+
+#### 📡 Pending Evolutions
+- **[PRIORITY 1] 5GHz Visibility:** The tool currently defaults to 2.4GHz. Needs a "Band Picker" in `core/scan.sh` to support 5GHz channels (e.g., Channel 112).
+
