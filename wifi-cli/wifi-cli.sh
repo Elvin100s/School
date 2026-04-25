@@ -86,6 +86,8 @@ while true; do
     section "Network Recon"
     echo -e "  ${BOLD_CYAN}[4]${NC} Host Discovery ${DIM}(nmap)${NC}"
     echo -e "  ${BOLD_CYAN}[5]${NC} Port Scan Host ${DIM}(nmap)${NC}"
+    echo
+    section "Web Vulnerability Scanner"
     echo -e "  ${BOLD_CYAN}[6]${NC} Web Vulnerability Scan ${DIM}(nikto)${NC}"
     echo
     section "Bandwidth Limiter"
