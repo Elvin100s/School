@@ -274,16 +274,18 @@ draw_status_box
 echo
 section "Wireless Recon"
 echo -e "  ${BOLD_CYAN}[1]${NC} Scan Networks"
-echo -e "  ${BOLD_CYAN}[2]${NC} Select Target"
-echo -e "  ${BOLD_CYAN}[3]${NC} Scan Clients"
+echo -e "  ${BOLD_CYAN}[2]${NC} Manual Entry ${DIM}(bypass scan)${NC}"
+echo -e "  ${BOLD_CYAN}[3]${NC} Select Target"
+echo -e "  ${BOLD_CYAN}[4]${NC} Scan Clients"
 echo
 section "Network Recon"
-echo -e "  ${BOLD_CYAN}[4]${NC} Host Discovery ${DIM}(nmap)${NC}"
-echo -e "  ${BOLD_CYAN}[5]${NC} Port Scan Host ${DIM}(nmap)${NC}"
+echo -e "  ${BOLD_CYAN}[5]${NC} Host Discovery ${DIM}(nmap)${NC}"
+echo -e "  ${BOLD_CYAN}[6]${NC} Port Scan Host ${DIM}(nmap)${NC}"
+echo -e "  ${BOLD_RED}[0]${NC} Bandwidth Limiter ${DIM}(requires managed mode)${NC}"
 echo
 section "${BOLD_RED}Attack${NC}"
-echo -e "  ${BOLD_RED}[6]${NC} Deauth ALL"
-echo -e "  ${BOLD_RED}[7]${NC} Deauth One Client"
+echo -e "  ${BOLD_RED}[7]${NC} Deauth ALL"
+echo -e "  ${BOLD_RED}[8]${NC} Deauth One Client"
 echo
 echo -e "  ${BOLD_YELLOW}[9]${NC} Back"
 echo
@@ -292,12 +294,21 @@ read -p "  Choice: " c
 
 case $c in
 1) scan_networks ;;
-2) select_target ;;
-3) scan_clients && attack_menu ;;
-4) host_discovery ;;
-5) port_scan ;;
-6) deauth_all ;;
-7) deauth_one ;;
+2) manual_entry ;;
+3) select_target ;;
+4) scan_clients && attack_menu ;;
+5) host_discovery ;;
+6) port_scan ;;
+0) 
+    if [[ -n "$mon_iface" ]]; then
+        echo -e "${BOLD_YELLOW}[!]${NC} Stopping monitor mode to enable IP traffic..."
+        stop_monitor
+        sleep 1
+    fi
+    throttle_client 
+    ;;
+7) deauth_all ;;
+8) deauth_one ;;
 9) break ;;
 esac
 

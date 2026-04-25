@@ -166,6 +166,43 @@ _display_networks "$results"
 pause
 }
 
+# Manually set a target without running a scan
+manual_entry() {
+    clear
+    echo -e "${BOLD_CYAN}========== Manual Target Entry ==========${NC}"
+    echo -e "  ${DIM}Use this if you already know the target details.${NC}"
+    echo
+
+    read -p "  Enter SSID (Name): " essid
+    
+    # Prompt for BSSID with a check for valid MAC format
+    while true; do
+        read -p "  Enter BSSID (MAC): " bssid
+        if [[ "$bssid" =~ ^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$ ]]; then
+            break
+        else
+            echo -e "  ${BOLD_RED}[!] Invalid MAC format (e.g. AA:BB:CC:11:22:33)${NC}"
+        fi
+    done
+
+    # Prompt for Channel
+    while true; do
+        read -p "  Enter Channel: " channel
+        if [[ "$channel" =~ ^[0-9]+$ ]] && (( channel >= 1 && channel <= 165 )); then
+            break
+        else
+            echo -e "  ${BOLD_RED}[!] Invalid Channel (1-165)${NC}"
+        fi
+    done
+
+    echo
+    echo -e "${BOLD_GREEN}[+]${NC} Target locked manually:"
+    echo -e "  ${DIM}SSID    :${NC} ${BOLD_WHITE}${essid}${NC}"
+    echo -e "  ${DIM}BSSID   :${NC} ${BOLD_WHITE}${bssid}${NC}"
+    echo -e "  ${DIM}Channel :${NC} ${BOLD_WHITE}${channel}${NC}"
+    pause
+}
+
 select_target() {
 
 local results
