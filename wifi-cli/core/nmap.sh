@@ -224,6 +224,18 @@ web_scan() {
     echo -e "  ${DIM}OSVDB refs  :${NC} ${BOLD_YELLOW}${osvdb_count}${NC}"
     echo -e "  ${DIM}Interesting :${NC} ${BOLD_RED}${interesting}${NC} high-value hits"
     echo -e "  ${DIM}Saved to    :${NC} ${CYAN}${outfile}${NC}"
+
+    # ── High-value findings detail ────────────────────────────────────────
+    if (( interesting > 0 )); then
+        echo
+        echo -e "${BOLD_CYAN}  ── High-Value Findings ─────────────────────────────────${NC}"
+        grep -i 'found\|login\|admin\|phpmyadmin\|backup\|config\|password\|\.git\|\.env' "$outfile" \
+            | grep '^\+' \
+            | sed 's/^+ //' \
+            | while IFS= read -r line; do
+                echo -e "  ${BOLD_RED}▶${NC} ${line}"
+              done
+    fi
     echo
 
     pause
