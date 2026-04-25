@@ -273,13 +273,33 @@ live_mode() {
     }
     trap cleanup_live EXIT INT TERM
 
+    # Detect 5 GHz capability for this interface
+    local _band_flag="" _band_label="2.4 GHz"
+    local _phy_idx
+    _phy_idx=$(iw dev "$iface" info 2>/dev/null | awk '/wiphy/{print $2}')
+    if [[ -n "$_phy_idx" ]] && \
+       iw phy "phy${_phy_idx}" info 2>/dev/null | grep -q "5[0-9][0-9][0-9] MHz"; then
+        echo
+        echo -e "${BOLD_CYAN}Frequency band:${NC}"
+        echo -e "  ${BOLD_CYAN}[1]${NC} 2.4 GHz"
+        echo -e "  ${BOLD_CYAN}[2]${NC} 5 GHz"
+        echo -e "  ${BOLD_CYAN}[3]${NC} Both"
+        echo
+        read -p "  Choice [default: 1]: " _bc
+        case "$_bc" in
+            2) _band_flag="--band a";   _band_label="5 GHz" ;;
+            3) _band_flag="--band abg"; _band_label="2.4 + 5 GHz" ;;
+        esac
+    fi
+
     echo
-    echo -e "${BOLD_CYAN}[+]${NC} Live capture on ${BOLD_GREEN}${iface}${NC}"
+    echo -e "${BOLD_CYAN}[+]${NC} Live capture on ${BOLD_GREEN}${iface}${NC} ${DIM}(${_band_label})${NC}"
     echo -e "  ${DIM}Interface must already be in monitor mode (use airmon-ng start <iface>)${NC}"
     echo -e "  ${DIM}Ctrl+C to abort${NC}"
     echo
 
-    airodump-ng --write "$tmpbase" --output-format csv "$iface" &>/dev/null &
+    # shellcheck disable=SC2086
+    airodump-ng $_band_flag --write "$tmpbase" --output-format csv "$iface" &>/dev/null &
     adump_pid=$!
 
     local i

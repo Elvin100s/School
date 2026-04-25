@@ -32,7 +32,7 @@ A menu-driven bash framework for wireless reconnaissance and network attacks, bu
 | `iw` | `iw` | Interface info |
 | `nmcli` | `network-manager` | Manage connections |
 | `macchanger` | `macchanger` | MAC address spoofing |
-| `arpspoof" | `dsniff` | ARP spoofing for MITM |
+| `arpspoof` | `dsniff` | ARP spoofing for MITM |
 | `tc` | `iproute2` | Traffic shaping |
 | `hostapd` | `hostapd` | Fake AP for evil twin |
 | `dnsmasq` | `dnsmasq` | DHCP + DNS spoofing for evil twin |
@@ -68,17 +68,35 @@ sudo ./wifi-cli.sh
 
 ---
 
-## Latest Updates (April 24, 2026)
+## Latest Updates (April 25, 2026)
+
+#### 📡 Dual-Band (5 GHz) Support
+- **Everywhere it matters:** Band picker added to `scan_networks`, `probe.sh` live mode, and hardware audit in `setup.sh`. The tool now detects whether your adapter supports 5 GHz and shows/hides the option accordingly.
+- **Spectrum-aware scanning:** Network list now labels each AP as `2.4G` or `5G` and treats the same SSID on different bands as separate entries.
+
+#### 🚦 Per-IP Bandwidth Limiting (HTB + SFQ)
+- **Replaced whole-interface TBF** with classful HTB shaping. Each throttled host gets its own class with a hard rate ceiling — your own traffic is never affected.
+- **SFQ leaf queuing** under each class ensures fair distribution across TCP flows so one connection can't starve others.
+- **Arrow-key network selector:** When entering the bandwidth limiter, a live interactive picker (↑↓ + Enter) lets you choose which network to target. The cursor defaults to your currently active network.
+- **Live DNS activity log:** Real-time DNS queries from throttled hosts are streamed to the terminal while the limiter is running, with per-class traffic stats every 8 seconds.
+
+#### 🧠 Integrated Intelligence Pipeline
+- **Probe auto-runs** after every client scan — manufacturer and network history are displayed immediately without a separate menu step.
+- **JA3 + DNS auto-run** when bandwidth limiting stops — TLS fingerprints and DNS patterns are captured silently in the background and displayed as a full report at the end.
+- **mDNS auto-runs** during Evil Twin — nearby Apple, Google, and IoT device hostnames and services are passively collected and shown alongside captured credentials.
+
+#### 🖼️ JavaScript Browser Fingerprinting (Evil Twin)
+- **Silent collection on portal load:** Canvas hash, font detection, screen/viewport/timezone/platform, battery level, and connection type are captured before the user clicks anything.
+- **Displayed on exit:** Full JS fingerprint profile is shown alongside credentials and mDNS results when the Evil Twin session ends.
 
 #### 🛠 Pre-flight Setup & Hardware Audit
-- **`setup.sh`:** A new automated installer that checks for all 15+ dependencies and audits your WiFi hardware to confirm it supports **Monitor Mode** before you start.
+- **`setup.sh`:** Automated installer checks all 15+ dependencies and audits wireless hardware for Monitor Mode and dual-band support before you start.
 
 #### 🛡️ Refactored Evil Twin
-- **Dynamic Subnets:** You can now modify the attack IP and subnet in `core/evil_twin.sh` to avoid collisions with the target network.
-- **Improved Portal:** The Python portal server now binds dynamically to the configured gateway IP and performs background device profiling.
+- **Dynamic Subnets:** Configurable attack IP and subnet in `core/evil_twin.sh` to avoid collisions with the target network.
 
 #### ⏱ Precise Deauthentication
-- **System-level Timing:** Refactored `core/deauth.sh` to use the `timeout` command. This replaces the old burst-loop with a continuous, precisely-timed attack that stops exactly when the timer hits zero.
+- **System-level Timing:** `core/deauth.sh` uses the `timeout` command for a continuous, precisely-timed attack that stops exactly when the timer hits zero.
 
 #### 🔍 Traffic & Signal Analysis
 - **DNS Analysis:** Identify Apple, Android, Windows, and IoT devices on the network based on live DNS query patterns.

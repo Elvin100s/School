@@ -78,12 +78,19 @@ check_adapter() {
         local phy_idx=$(iw dev "$iface" info | awk '/wiphy/ {print $2}')
         local phy="phy${phy_idx}"
         
-        # Check for monitor mode support in 'iw list' output
+        # Check for monitor mode support
         if iw phy "$phy" info 2>/dev/null | grep -q "monitor"; then
             echo -e "      ${BOLD_GREEN}✔ Supports Monitor Mode${NC}"
             ((compatible++))
         else
             echo -e "      ${BOLD_RED}✘ Monitor Mode not supported by hardware/driver${NC}"
+        fi
+
+        # Check for 5 GHz band support
+        if iw phy "$phy" info 2>/dev/null | grep -q "5[0-9][0-9][0-9] MHz"; then
+            echo -e "      ${BOLD_GREEN}✔ Dual-band (2.4 GHz + 5 GHz)${NC}"
+        else
+            echo -e "      ${BOLD_YELLOW}~ 2.4 GHz only — 5 GHz scan options will be hidden${NC}"
         fi
     done
 

@@ -396,7 +396,7 @@ display_results() {
     for row in "${rows[@]}"; do
         IFS='|' read -r src_ip mac ja3_hash label browser os dtype <<< "$row"
 
-        (( type_counts["$dtype"]++ )) || true
+        type_counts["$dtype"]=$(( ${type_counts["$dtype"]:-0} + 1 ))
 
         # Color by threat level / type
         local hash_color label_color
@@ -437,7 +437,7 @@ display_results() {
     # Sort types for clean output
     for t in Desktop Mobile "Mobile App" App IoT Tool Scanner Framework "C2 Framework" Anonymizer Unknown; do
         [[ -n "${type_counts[$t]+_}" ]] || continue
-        local count="${type_counts[$t]}"
+        local count="${type_counts[$t]:-0}"
         local color="$RST"
         case "$t" in
             "C2 Framework"|"Framework") color="$BRED" ;;
@@ -456,7 +456,7 @@ display_results() {
     for t in "${!type_counts[@]}"; do
         case "$t" in
             Desktop|Mobile|"Mobile App"|App|IoT|Tool|Scanner|Framework|"C2 Framework"|Anonymizer|Unknown) ;;
-            *) printf "    ${WHT}%3d${RST}  ${RST}%-14s${RST}\n" "${type_counts[$t]}" "$t" ;;
+            *) printf "    ${WHT}%3d${RST}  ${RST}%-14s${RST}\n" "${type_counts[$t]:-0}" "$t" ;;
         esac
     done
 
