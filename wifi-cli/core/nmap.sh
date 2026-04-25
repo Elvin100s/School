@@ -113,50 +113,61 @@ web_scan() {
         return
     fi
 
-    if [[ -z "$iface" ]]; then
-        select_interface
-        [[ -z "$iface" ]] && return
-    fi
-
-    local subnet
-    subnet=$(_get_subnet)
-
-    if [[ -z "$subnet" ]]; then
-        echo -e "${BOLD_RED}[!]${NC} No IP on ${BOLD_GREEN}${iface}${NC} — connect to a network first."
-        pause
-        return
-    fi
-
-    echo -e "${BOLD_CYAN}[+]${NC} Scanning for hosts on ${BOLD_GREEN}${subnet}${NC}..."
-    echo
-    local hosts
-    hosts=$(nmap -sn -T4 "$subnet" 2>/dev/null \
-        | awk '/Nmap scan report/{ip=$NF; gsub(/[()]/, "", ip)} /MAC Address/{mac=$3; print ip, mac}')
-
-    if [[ -z "$hosts" ]]; then
-        echo -e "${BOLD_YELLOW}[!]${NC} No hosts found."
-        pause
-        return
-    fi
-
     clear
-    echo -e "${BOLD_CYAN}Select host to scan:${NC}"
+    echo -e "${BOLD_CYAN}========== Web Vulnerability Scan ==========${NC}"
     echo
-    local _n=1
-    while IFS=' ' read -r _ip _mac; do
-        printf "  ${BOLD_CYAN}%2d)${NC}  ${GREEN}%-16s${NC}  ${BOLD_MAGENTA}%s${NC}\n" "$_n" "$_ip" "$_mac"
-        (( _n++ )) || true
-    done <<< "$hosts"
+    echo -e "${BOLD_CYAN}Target:${NC}"
+    echo -e "  ${BOLD_CYAN}[1]${NC} Scan network and pick a host"
+    echo -e "  ${BOLD_CYAN}[2]${NC} Enter IP / URL manually"
     echo
-    read -p "  Host number: " num
+    read -p "  Choice [default: 1]: " target_mode
+    echo
 
     local target_ip
-    target_ip=$(echo "$hosts" | sed -n "${num}p" | awk '{print $1}')
+    if [[ "$target_mode" == "2" ]]; then
+        read -p "  Enter IP or URL: " target_ip
+        if [[ -z "$target_ip" ]]; then
+            echo -e "${BOLD_RED}[!]${NC} No target entered."
+            pause; return
+        fi
+    else
+        if [[ -z "$iface" ]]; then
+            select_interface
+            [[ -z "$iface" ]] && return
+        fi
 
-    if [[ -z "$target_ip" ]]; then
-        echo -e "${BOLD_RED}[!]${NC} Invalid selection."
-        pause
-        return
+        local subnet
+        subnet=$(_get_subnet)
+
+        if [[ -z "$subnet" ]]; then
+            echo -e "${BOLD_RED}[!]${NC} No IP on ${BOLD_GREEN}${iface}${NC} — connect to a network first."
+            pause; return
+        fi
+
+        echo -e "${BOLD_CYAN}[+]${NC} Scanning for hosts on ${BOLD_GREEN}${subnet}${NC}..."
+        echo
+        local hosts
+        hosts=$(nmap -sn -T4 "$subnet" 2>/dev/null \
+            | awk '/Nmap scan report/{ip=$NF; gsub(/[()]/, "", ip)} /MAC Address/{mac=$3; print ip, mac}')
+
+        if [[ -z "$hosts" ]]; then
+            echo -e "${BOLD_YELLOW}[!]${NC} No hosts found."
+            pause; return
+        fi
+
+        local _n=1
+        while IFS=' ' read -r _ip _mac; do
+            printf "  ${BOLD_CYAN}%2d)${NC}  ${GREEN}%-16s${NC}  ${BOLD_MAGENTA}%s${NC}\n" "$_n" "$_ip" "$_mac"
+            (( _n++ )) || true
+        done <<< "$hosts"
+        echo
+        read -p "  Host number: " num
+
+        target_ip=$(echo "$hosts" | sed -n "${num}p" | awk '{print $1}')
+        if [[ -z "$target_ip" ]]; then
+            echo -e "${BOLD_RED}[!]${NC} Invalid selection."
+            pause; return
+        fi
     fi
 
     echo
@@ -182,14 +193,38 @@ web_scan() {
         *) nikto_port="80" ;;
     esac
 
+    # Output file — safe filename from target
+    local _safe_target
+    _safe_target=$(echo "$target_ip" | tr -cd '[:alnum:]._-')
+    local outfile="/tmp/wificli_nikto_${_safe_target}_$(date +%H%M%S).txt"
+
     clear
     echo -e "${BOLD_CYAN}========== Web Vulnerability Scan ==========${NC}"
-    echo -e "  ${DIM}Target :${NC} ${BOLD_GREEN}${target_ip}${NC}"
-    echo -e "  ${DIM}Port   :${NC} ${BOLD_GREEN}${nikto_port}${NC}"
+    echo -e "  ${DIM}Target  :${NC} ${BOLD_GREEN}${target_ip}${NC}"
+    echo -e "  ${DIM}Port    :${NC} ${BOLD_GREEN}${nikto_port}${NC}"
+    echo -e "  ${DIM}Saving  :${NC} ${DIM}${outfile}${NC}"
     echo
 
+    # Run nikto — output to terminal and file simultaneously
     # shellcheck disable=SC2086
-    nikto -host "$target_ip" -port "$nikto_port" $nikto_ssl
+    nikto -host "$target_ip" -port "$nikto_port" $nikto_ssl 2>&1 | tee "$outfile"
+
+    # ── Summary ──────────────────────────────────────────────────────────
+    echo
+    echo -e "${BOLD_CYAN}  ── Scan Summary ────────────────────────────────────────${NC}"
+
+    local total_findings server osvdb_count interesting
+    total_findings=$(grep -c '^\+' "$outfile" 2>/dev/null || echo 0)
+    server=$(grep 'Server:' "$outfile" 2>/dev/null | head -1 | sed 's/.*Server: //')
+    osvdb_count=$(grep -c 'OSVDB' "$outfile" 2>/dev/null || echo 0)
+    interesting=$(grep -c 'found\|login\|admin\|phpmyadmin\|backup\|config\|password\|\.git\|\.env' "$outfile" 2>/dev/null || echo 0)
+
+    [[ -n "$server"        ]] && echo -e "  ${DIM}Server      :${NC} ${BOLD_GREEN}${server}${NC}"
+    echo -e "  ${DIM}Findings    :${NC} ${BOLD_YELLOW}${total_findings}${NC} total"
+    echo -e "  ${DIM}OSVDB refs  :${NC} ${BOLD_YELLOW}${osvdb_count}${NC}"
+    echo -e "  ${DIM}Interesting :${NC} ${BOLD_RED}${interesting}${NC} high-value hits"
+    echo -e "  ${DIM}Saved to    :${NC} ${CYAN}${outfile}${NC}"
+    echo
 
     pause
 }
