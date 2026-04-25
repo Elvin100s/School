@@ -52,10 +52,15 @@ probe_analysis() {
 
 scan_clients() {
 
-if [[ -z "$mon_iface" || -z "$channel" ]]; then
-echo -e "${BOLD_RED}[!]${NC} Set interface and enable monitor mode first!"
-pause
-return
+if [[ -z "$mon_iface" ]]; then
+    echo -e "${BOLD_RED}[!]${NC} Enable monitor mode first! (Manual Mode option [1] → scan networks)"
+    pause
+    return
+fi
+if [[ -z "$channel" ]]; then
+    echo -e "${BOLD_RED}[!]${NC} No channel set — select a target first (option [2])."
+    pause
+    return
 fi
 
 if ! [[ "$channel" =~ ^[0-9]+$ ]] || (( channel < 1 || channel > 165 )); then
@@ -130,5 +135,12 @@ else
 fi
 
 echo
+local _probe_sh
+_probe_sh="$(dirname "${BASH_SOURCE[0]}")/probe.sh"
+if [[ -x "$_probe_sh" && -f scan-01.csv ]]; then
+    echo
+    bash "$_probe_sh" scan-01.csv
+fi
+
 pause
 }

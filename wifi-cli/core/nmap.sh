@@ -10,9 +10,8 @@ _get_subnet() {
 # Discover live hosts on the interface's subnet
 host_discovery() {
     if [[ -z "$iface" ]]; then
-        echo -e "${BOLD_RED}[!]${NC} Select an interface first!"
-        pause
-        return
+        select_interface
+        [[ -z "$iface" ]] && return
     fi
 
     local subnet
@@ -47,9 +46,8 @@ host_discovery() {
 # Port scan a host selected from the discovery list
 port_scan() {
     if [[ -z "$iface" ]]; then
-        echo -e "${BOLD_RED}[!]${NC} Select an interface first!"
-        pause
-        return
+        select_interface
+        [[ -z "$iface" ]] && return
     fi
 
     local subnet

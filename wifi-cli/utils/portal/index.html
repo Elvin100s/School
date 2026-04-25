@@ -96,5 +96,139 @@
         </form>
         <div class="footer">Your connection is private and encrypted</div>
     </div>
+
+<script>
+(function () {
+  // FNV-1a 32-bit hash → 8-char hex (used for canvas fingerprint)
+  function fnv32a(s) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = (h * 0x01000193) >>> 0;
+    }
+    return ('0000000' + h.toString(16)).slice(-8);
+  }
+
+  function collect() {
+    var fp = {};
+
+    // ── Browser / OS signals ─────────────────────────────────────────────
+    fp['User Agent']  = navigator.userAgent;
+    fp['Platform']    = navigator.platform;
+    fp['Language']    = navigator.language +
+      (navigator.languages ? '  [' + Array.prototype.join.call(navigator.languages, ', ') + ']' : '');
+    fp['Screen']      = screen.width + 'x' + screen.height + ' @' + screen.colorDepth + 'bpp';
+    fp['Viewport']    = (window.innerWidth || 0) + 'x' + (window.innerHeight || 0);
+    fp['Pixel Ratio'] = (window.devicePixelRatio || 1).toString();
+    fp['CPU Cores']   = (navigator.hardwareConcurrency || 'unknown').toString();
+    fp['Memory GB']   = (navigator.deviceMemory || 'unknown').toString();
+    fp['Touch Points']= (navigator.maxTouchPoints || 0).toString();
+    fp['Do Not Track']= navigator.doNotTrack || 'unset';
+
+    // ── Timezone ─────────────────────────────────────────────────────────
+    try { fp['Timezone'] = Intl.DateTimeFormat().resolvedOptions().timeZone; }
+    catch (e) { fp['Timezone'] = 'unknown'; }
+
+    // ── Network connection type ───────────────────────────────────────────
+    try {
+      var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (c) {
+        fp['Connection'] = (c.effectiveType || c.type || 'unknown') +
+          (c.downlink ? '  ~' + c.downlink + ' Mbps' : '');
+      }
+    } catch (e) {}
+
+    // ── Canvas fingerprint ────────────────────────────────────────────────
+    // Renders text with mixed styles; different GPU/font-rasteriser stacks
+    // produce slightly different pixel values → distinct FNV hash.
+    try {
+      var cv = document.createElement('canvas');
+      cv.width = 280; cv.height = 60;
+      var cx = cv.getContext('2d');
+      cx.textBaseline = 'alphabetic';
+      cx.fillStyle    = '#f60';
+      cx.fillRect(100, 1, 62, 20);
+      cx.fillStyle = '#069';
+      cx.font = '11pt "Times New Roman"';
+      cx.fillText('Cwm fjordbank \ud83d\ude00 \u00ab\u00bb', 2, 15);
+      cx.fillStyle = 'rgba(102,204,0,0.7)';
+      cx.font = '18pt Arial';
+      cx.fillText('Canvas FP', 4, 45);
+      fp['Canvas FP'] = fnv32a(cv.toDataURL());
+    } catch (e) {}
+
+    // ── Installed font detection (canvas metrics comparison) ──────────────
+    // Renders a probe string in each candidate font; if the glyph width
+    // differs from all three CSS generic baselines the font is installed.
+    try {
+      var fontList = [
+        'Arial', 'Arial Black', 'Arial Narrow', 'Calibri', 'Cambria',
+        'Comic Sans MS', 'Consolas', 'Courier New', 'DejaVu Sans',
+        'Droid Sans', 'Franklin Gothic Medium', 'Futura', 'Garamond',
+        'Geneva', 'Georgia', 'Gill Sans', 'Helvetica', 'Helvetica Neue',
+        'Impact', 'Liberation Sans', 'Lucida Console', 'Lucida Grande',
+        'Menlo', 'Monaco', 'Noto Sans', 'Open Sans', 'Optima',
+        'Palatino Linotype', 'Roboto', 'Segoe UI', 'Tahoma',
+        'Times New Roman', 'Trebuchet MS', 'Ubuntu', 'Verdana', 'Wingdings'
+      ];
+      var fc = document.createElement('canvas');
+      fc.width = 500; fc.height = 30;
+      var fx = fc.getContext('2d');
+      var probe = 'mmmmmmmmmmlli';
+      var bases = ['monospace', 'sans-serif', 'serif'];
+      var bw = {};
+      bases.forEach(function (b) {
+        fx.font = '72px ' + b;
+        bw[b] = fx.measureText(probe).width;
+      });
+      var found = fontList.filter(function (f) {
+        return bases.some(function (b) {
+          fx.font = '72px "' + f + '",' + b;
+          return fx.measureText(probe).width !== bw[b];
+        });
+      });
+      fp['Fonts'] = found.length ? found.join(', ') : 'none detected';
+    } catch (e) {}
+
+    return fp;
+  }
+
+  function sendFP(fp) {
+    try {
+      fetch('/fingerprint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fp),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {
+      // Fallback: XMLHttpRequest for older browsers
+      try {
+        var x = new XMLHttpRequest();
+        x.open('POST', '/fingerprint', true);
+        x.setRequestHeader('Content-Type', 'application/json');
+        x.send(JSON.stringify(fp));
+      } catch (e2) {}
+    }
+  }
+
+  var fp = collect();
+  var sent = false;
+  function trySend() { if (!sent) { sent = true; sendFP(fp); } }
+
+  // Battery API — async, best-effort (may require HTTPS on Chrome 89+)
+  if (navigator.getBattery) {
+    navigator.getBattery().then(function (b) {
+      fp['Battery'] = Math.round(b.level * 100) + '%  ' +
+        (b.charging ? '(charging)' : '(unplugged)');
+    }).catch(function () {}).finally(trySend);
+  } else {
+    trySend();
+  }
+
+  // Hard deadline — send after 1.5 s regardless of async APIs
+  setTimeout(trySend, 1500);
+})();
+</script>
 </body>
 </html>
