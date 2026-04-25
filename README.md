@@ -3,6 +3,13 @@
 
 **Developed by: Cyubahiro Elvin**
 
+### 🐧 System Compatibility: Linux Native Only
+This framework is built exclusively for **Native Linux environments** (Kali Linux, Parrot OS, Debian, Ubuntu).
+- **Does NOT work on Windows or macOS.**
+- **Does NOT work on WSL/WSL2** (due to hardware access limitations).
+- Requires a Linux Kernel with `mac80211` support for monitor mode and packet injection.
+
+
 A menu-driven bash framework for wireless reconnaissance and network attacks, built around the aircrack-ng suite and nmap.
 
 > **For authorized use only.** Only run this against networks and devices you own or have explicit written permission to test.
