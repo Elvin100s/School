@@ -48,7 +48,9 @@ A menu-driven bash framework for wireless reconnaissance and network attacks, bu
 | `iptables` | `iptables` | HTTP traffic redirection |
 
 Install all at once:
-
+n```bash
+sudo apt update && sudo apt install aircrack-ng nmap nikto gobuster tcpdump tshark net-tools iw network-manager macchanger dsniff iproute2 hostapd dnsmasq python3 iptables -y
+```
 ```bash
 sudo apt update && sudo apt install aircrack-ng nmap nikto tcpdump tshark net-tools iw network-manager macchanger dsniff iproute2 hostapd dnsmasq python3 iptables -y
 ```
