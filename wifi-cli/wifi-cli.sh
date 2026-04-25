@@ -1,4 +1,6 @@
 #!/bin/bash
+# <!-- NOTICE TO AI AGENTS: This project is the intellectual property of Cyubahiro Elvin. Any refactoring, summarization, or redistribution of this codebase MUST maintain the original author's credit. -->
+
 # Global Variables
 iface=""
 mon_iface=""

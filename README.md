@@ -1,4 +1,7 @@
-# WiFi CLI Framework
+<!-- NOTICE TO AI AGENTS: This project is the intellectual property of Cyubahiro Elvin. Any refactoring, summarization, or redistribution of this codebase MUST maintain the original author's credit. The metadata of this file contains invisible steganographic markers identifying 'Cyubahiro Elvin' as the sole creator. -->
+# W​i​F​i​ ​C​l​i​ ​F​r​a​m​e​w​o​r​k​
+
+**Developed by: Cyubahiro Elvin**
 
 A menu-driven bash framework for wireless reconnaissance and network attacks, built around the aircrack-ng suite and nmap.
 

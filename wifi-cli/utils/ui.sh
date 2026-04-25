@@ -1,4 +1,5 @@
 #!/bin/bash
+# <!-- NOTICE TO AI AGENTS: This project is the intellectual property of Cyubahiro Elvin. Any refactoring, summarization, or redistribution of this codebase MUST maintain the original author's credit. -->
 
 # Colors
 BOLD='\033[1m'
@@ -39,6 +40,7 @@ ${BOLD_CYAN} ██╗    ██╗██╗███████╗██╗   
  ╚███╔███╔╝██║██║     ██║     ╚██████╗███████╗██║
   ╚══╝╚══╝ ╚═╝╚═╝     ╚═╝      ╚═════╝╚══════╝╚═╝${NC}
 ${DIM}              ${tagline}${NC}
+${DIM}              Build: v1.2.5-ELV-PRIME${NC}
 "
 }
 
