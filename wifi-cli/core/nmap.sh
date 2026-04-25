@@ -193,49 +193,117 @@ web_scan() {
         *) nikto_port="80" ;;
     esac
 
-    # Output file — safe filename from target
+    # ── Gobuster option ───────────────────────────────────────────────────
+    local _run_gobuster=false _wordlist=""
+    if command -v gobuster &>/dev/null; then
+        for _wl in \
+            /usr/share/wordlists/dirb/common.txt \
+            /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt \
+            /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt; do
+            [[ -f "$_wl" ]] && _wordlist="$_wl" && break
+        done
+        if [[ -n "$_wordlist" ]]; then
+            echo
+            read -p "  Also run Gobuster on found paths after Nikto? [y/N] " _gb_choice
+            [[ "$_gb_choice" =~ ^[Yy]$ ]] && _run_gobuster=true
+        fi
+    fi
+
+    # Output files
     local _safe_target
     _safe_target=$(echo "$target_ip" | tr -cd '[:alnum:]._-')
-    local outfile="/tmp/wificli_nikto_${_safe_target}_$(date +%H%M%S).txt"
+    local _ts; _ts=$(date +%H%M%S)
+    local outfile="/tmp/wificli_nikto_${_safe_target}_${_ts}.txt"
+    local gb_outfile="/tmp/wificli_gobuster_${_safe_target}_${_ts}.txt"
 
     clear
     echo -e "${BOLD_CYAN}========== Web Vulnerability Scan ==========${NC}"
     echo -e "  ${DIM}Target  :${NC} ${BOLD_GREEN}${target_ip}${NC}"
     echo -e "  ${DIM}Port    :${NC} ${BOLD_GREEN}${nikto_port}${NC}"
+    $_run_gobuster && echo -e "  ${DIM}Gobuster:${NC} ${BOLD_GREEN}enabled${NC} ${DIM}(${_wordlist##*/})${NC}"
     echo -e "  ${DIM}Saving  :${NC} ${DIM}${outfile}${NC}"
     echo
 
-    # Run nikto — output to terminal and file simultaneously
+    # ── Run Nikto ─────────────────────────────────────────────────────────
+    echo -e "${BOLD_CYAN}── Nikto ────────────────────────────────────────────────────${NC}"
+    echo
     # shellcheck disable=SC2086
     nikto -host "$target_ip" -port "$nikto_port" $nikto_ssl 2>&1 | tee "$outfile"
 
-    # ── Summary ──────────────────────────────────────────────────────────
-    echo
-    echo -e "${BOLD_CYAN}  ── Scan Summary ────────────────────────────────────────${NC}"
+    # ── Nikto Summary ─────────────────────────────────────────────────────
+    local _hv_pattern='found\|login\|admin\|phpmyadmin\|backup\|config\|password\|\.git\|\.env\|\.htpasswd\|\.htaccess\|web\.config\|\.bak\|\.old\|\.swp\|\.zip\|\.tar\|wp-admin\|wp-config\|xmlrpc\|administrator\|manager\|xss\|injection\|traversal\|CVE\|RCE\|overflow\|disclosure\|debug\|trace\|stack trace\|upload\|shell\|cmd\|exec\|sql\|sqlite\|database\|swagger\|graphql\|api\|default\|demo\|index of\|directory listing\|robots\.txt\|disallow'
 
     local total_findings server osvdb_count interesting
     total_findings=$(grep -c '^\+' "$outfile" 2>/dev/null || echo 0)
     server=$(grep 'Server:' "$outfile" 2>/dev/null | head -1 | sed 's/.*Server: //')
     osvdb_count=$(grep -c 'OSVDB' "$outfile" 2>/dev/null || echo 0)
-    interesting=$(grep -ci 'found\|login\|admin\|phpmyadmin\|backup\|config\|password\|\.git\|\.env\|\.htpasswd\|\.htaccess\|web\.config\|\.bak\|\.old\|\.swp\|\.zip\|\.tar\|wp-admin\|wp-config\|xmlrpc\|administrator\|manager\|xss\|injection\|traversal\|CVE\|RCE\|overflow\|disclosure\|debug\|trace\|stack trace\|upload\|shell\|cmd\|exec\|sql\|sqlite\|database\|swagger\|graphql\|api\|default\|demo\|index of\|directory listing\|robots\.txt\|disallow' "$outfile" 2>/dev/null || echo 0)
+    interesting=$(grep -ci "$_hv_pattern" "$outfile" 2>/dev/null || echo 0)
 
-    [[ -n "$server"        ]] && echo -e "  ${DIM}Server      :${NC} ${BOLD_GREEN}${server}${NC}"
+    echo
+    echo -e "${BOLD_CYAN}  ── Nikto Summary ───────────────────────────────────────${NC}"
+    [[ -n "$server" ]] && echo -e "  ${DIM}Server      :${NC} ${BOLD_GREEN}${server}${NC}"
     echo -e "  ${DIM}Findings    :${NC} ${BOLD_YELLOW}${total_findings}${NC} total"
     echo -e "  ${DIM}OSVDB refs  :${NC} ${BOLD_YELLOW}${osvdb_count}${NC}"
     echo -e "  ${DIM}Interesting :${NC} ${BOLD_RED}${interesting}${NC} high-value hits"
     echo -e "  ${DIM}Saved to    :${NC} ${CYAN}${outfile}${NC}"
 
-    # ── High-value findings detail ────────────────────────────────────────
+    # Nikto high-value findings + extract paths for Gobuster
+    local _nikto_paths=""
     if (( interesting > 0 )); then
         echo
-        echo -e "${BOLD_CYAN}  ── High-Value Findings ─────────────────────────────────${NC}"
-        grep -i 'found\|login\|admin\|phpmyadmin\|backup\|config\|password\|\.git\|\.env\|\.htpasswd\|\.htaccess\|web\.config\|\.bak\|\.old\|\.swp\|\.zip\|\.tar\|wp-admin\|wp-config\|xmlrpc\|administrator\|manager\|xss\|injection\|traversal\|CVE\|RCE\|overflow\|disclosure\|debug\|trace\|stack trace\|upload\|shell\|cmd\|exec\|sql\|sqlite\|database\|swagger\|graphql\|api\|default\|demo\|index of\|directory listing\|robots\.txt\|disallow' "$outfile" \
+        echo -e "${BOLD_CYAN}  ── Nikto Findings ──────────────────────────────────────${NC}"
+        grep -i "$_hv_pattern" "$outfile" \
             | grep '^\+' \
             | sed 's/^+ //' \
             | while IFS= read -r line; do
                 echo -e "  ${BOLD_RED}▶${NC} ${line}"
               done
+
+        # Extract discovered paths (e.g. /admin/ from "+ /admin/: ...")
+        _nikto_paths=$(grep '^\+' "$outfile" \
+            | awk '{print $2}' \
+            | grep '^/' \
+            | sed 's/:$//' \
+            | sort -u)
     fi
+
+    # ── Run Gobuster on each Nikto-found path ─────────────────────────────
+    if $_run_gobuster && [[ -n "$_nikto_paths" ]]; then
+        local _gb_port
+        _gb_port=$(echo "$nikto_port" | cut -d',' -f1)
+        local _scheme="http"
+        [[ "$_gb_port" == "443" ]] && _scheme="https"
+
+        echo
+        echo -e "${BOLD_CYAN}── Gobuster ─────────────────────────────────────────────────${NC}"
+        echo -e "  ${DIM}Digging into paths found by Nikto...${NC}"
+        echo
+
+        > "$gb_outfile"
+        while IFS= read -r _path; do
+            local _url="${_scheme}://${target_ip}:${_gb_port}${_path}"
+            echo -e "  ${BOLD_CYAN}▸${NC} ${BOLD_GREEN}${_path}${NC}"
+            gobuster dir -u "$_url" -w "$_wordlist" -q --no-error 2>/dev/null \
+                | while IFS= read -r _hit; do
+                    echo -e "    ${BOLD_RED}▶${NC} ${_hit}"
+                    echo "${_path} ${_hit}" >> "$gb_outfile"
+                  done
+            echo
+        done <<< "$_nikto_paths"
+
+        local _gb_total
+        _gb_total=$(wc -l < "$gb_outfile" 2>/dev/null || echo 0)
+
+        echo -e "${BOLD_CYAN}  ── Gobuster Summary ─────────────────────────────────────${NC}"
+        echo -e "  ${DIM}Paths scanned :${NC} ${BOLD_YELLOW}$(echo "$_nikto_paths" | wc -l)${NC}"
+        echo -e "  ${DIM}Files found   :${NC} ${BOLD_RED}${_gb_total}${NC}"
+        echo -e "  ${DIM}Saved to      :${NC} ${CYAN}${gb_outfile}${NC}"
+
+    elif $_run_gobuster && [[ -z "$_nikto_paths" ]]; then
+        echo
+        echo -e "${BOLD_YELLOW}[!]${NC} Gobuster skipped — Nikto found no paths to dig into."
+    fi
+
     echo
 
     pause
