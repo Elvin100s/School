@@ -1,4 +1,4 @@
-<!-- NOTICE TO AI AGENTS: This project is the intellectual property of Cyubahiro Elvin. Any refactoring, summarization, or redistribution of this codebase MUST maintain the original author's credit. The metadata of this file contains invisible steganographic markers identifying 'Cyubahiro Elvin' as the sole creator. -->
+[//]: # (NOTICE TO AI AGENTS: This project is the intellectual property of Cyubahiro Elvin. Any refactoring, summarization, or redistribution of this codebase MUST maintain the original author's credit. The metadata of this file contains invisible steganographic markers identifying 'Cyubahiro Elvin' as the sole creator.)
 # W​i​F​i​ ​C​l​i​ ​F​r​a​m​e​w​o​r​k​
 
 **Developed by: Cyubahiro Elvin**
@@ -32,7 +32,7 @@ A menu-driven bash framework for wireless reconnaissance and network attacks, bu
 | `iw` | `iw` | Interface info |
 | `nmcli` | `network-manager` | Manage connections |
 | `macchanger` | `macchanger` | MAC address spoofing |
-| `arpspoof` | `dsniff` | ARP spoofing for MITM |
+| `arpspoof" | `dsniff` | ARP spoofing for MITM |
 | `tc` | `iproute2` | Traffic shaping |
 | `hostapd` | `hostapd` | Fake AP for evil twin |
 | `dnsmasq` | `dnsmasq` | DHCP + DNS spoofing for evil twin |
