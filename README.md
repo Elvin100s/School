@@ -46,13 +46,11 @@ A menu-driven bash framework for wireless reconnaissance and network attacks, bu
 | `dnsmasq` | `dnsmasq` | DHCP + DNS spoofing for evil twin |
 | `python3` | `python3` | Captive portal web server |
 | `iptables` | `iptables` | HTTP traffic redirection |
+| `gobuster` | `gobuster` | Directory brute-force on Nikto-found paths |
 
 Install all at once:
-n```bash
-sudo apt update && sudo apt install aircrack-ng nmap nikto gobuster tcpdump tshark net-tools iw network-manager macchanger dsniff iproute2 hostapd dnsmasq python3 iptables -y
-```
 ```bash
-sudo apt update && sudo apt install aircrack-ng nmap nikto tcpdump tshark net-tools iw network-manager macchanger dsniff iproute2 hostapd dnsmasq python3 iptables -y
+sudo apt update && sudo apt install aircrack-ng nmap nikto gobuster tcpdump tshark net-tools iw network-manager macchanger dsniff iproute2 hostapd dnsmasq python3 iptables -y
 ```
 
 ---
@@ -78,7 +76,7 @@ sudo ./wifi-cli.sh
 
 ---
 
-## Latest Updates (April 25, 2026)
+## Latest Updates (April 26, 2026)
 
 #### 📡 Dual-Band (5 GHz) Support
 - **Everywhere it matters:** Band picker added to `scan_networks`, `probe.sh` live mode, and hardware audit in `setup.sh`. The tool now detects whether your adapter supports 5 GHz and shows/hides the option accordingly.
@@ -144,6 +142,9 @@ Fully automated start-to-finish workflow:
 
 ### Manual Mode
 Step-by-step control over the reconnaissance and attack phases. Includes **Host Discovery**, **Port Scanning**, and the new **Traffic Analysis** suite.
+
+### Web Vulnerability Scanner
+Runs `nikto` against any host on the network (or a manually entered IP/URL). Supports HTTP, HTTPS, and custom ports. After Nikto finishes, optionally launches **Gobuster** against every path Nikto discovered — digging for hidden files and directories automatically.
 
 ### Bandwidth Limiter
 MITM-based traffic shaping. Targets a specific host or the entire network and throttles their speed using `arpspoof` and `tc`. Automatically launches background **JA3 and DNS intelligence** gathering.
